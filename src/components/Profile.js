@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import axios from 'axios';
-import toast from 'react-hot-toast';
-import { User, Phone, MapPin, Globe } from 'lucide-react';
-import { Country, City } from 'country-state-city';
-import SearchableSelect from './SearchableSelect';
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { User, Phone, MapPin, Globe } from "lucide-react";
+import { Country, City } from "country-state-city";
+import SearchableSelect from "./SearchableSelect";
 
 function Profile() {
   const { user: authUser, login } = useAuth();
   const [user, setUser] = useState({
-    name: '',
-    phone: '',
-    country: '',
-    city: '',
+    name: "",
+    phone: "",
+    country: "",
+    city: "",
   });
   const [isEditing, setIsEditing] = useState(false);
   const [countries, setCountries] = useState([]);
@@ -26,16 +26,16 @@ function Profile() {
   useEffect(() => {
     if (authUser) {
       setUser({
-        name: authUser.name || '',
-        phone: authUser.phone || '',
-        country: authUser.country || '',
-        city: authUser.city || '',
+        name: authUser.name || "",
+        phone: authUser.phone || "",
+        country: authUser.country || "",
+        city: authUser.city || "",
       });
-      
+
       // Set selected country for cities dropdown
       if (authUser.country) {
         const country = Country.getAllCountries().find(
-          c => c.name === authUser.country
+          (c) => c.name === authUser.country
         );
         setSelectedCountry(country);
       }
@@ -51,12 +51,12 @@ function Profile() {
   }, [selectedCountry]);
 
   const handleCountryChange = (e) => {
-    const country = countries.find(c => c.name === e.target.value);
+    const country = countries.find((c) => c.name === e.target.value);
     setSelectedCountry(country);
-    setUser(prev => ({
+    setUser((prev) => ({
       ...prev,
       country: country.name,
-      city: '', // Reset city when country changes
+      city: "", // Reset city when country changes
     }));
   };
 
@@ -64,19 +64,19 @@ function Profile() {
     e.preventDefault();
     try {
       const response = await axios.put(
-        'http://localhost:5000/api/auth/profile',
+        `${process.env.REACT_APP_API_URL}/auth/profile`,
         user,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
-      login(response.data.user, localStorage.getItem('token'));
+      login(response.data.user, localStorage.getItem("token"));
       setIsEditing(false);
-      toast.success('Profile updated successfully');
+      toast.success("Profile updated successfully");
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Error updating profile');
+      toast.error(error.response?.data?.message || "Error updating profile");
     }
   };
 
@@ -114,12 +114,16 @@ function Profile() {
                 {isEditing ? (
                   <input
                     type="tel"
-                    value={user.phone || ''}
-                    onChange={(e) => setUser({ ...user, phone: e.target.value })}
+                    value={user.phone || ""}
+                    onChange={(e) =>
+                      setUser({ ...user, phone: e.target.value })
+                    }
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                   />
                 ) : (
-                  <p className="mt-1 text-gray-900">{user.phone || 'Not set'}</p>
+                  <p className="mt-1 text-gray-900">
+                    {user.phone || "Not set"}
+                  </p>
                 )}
               </div>
 
@@ -136,7 +140,9 @@ function Profile() {
                     placeholder="Select a country"
                   />
                 ) : (
-                  <p className="mt-1 text-gray-900">{user.country || 'Not set'}</p>
+                  <p className="mt-1 text-gray-900">
+                    {user.country || "Not set"}
+                  </p>
                 )}
               </div>
 
@@ -151,10 +157,14 @@ function Profile() {
                     onChange={(e) => setUser({ ...user, city: e.target.value })}
                     disabled={!selectedCountry}
                     options={cities}
-                    placeholder={selectedCountry ? "Select a city" : "Select a country first"}
+                    placeholder={
+                      selectedCountry
+                        ? "Select a city"
+                        : "Select a country first"
+                    }
                   />
                 ) : (
-                  <p className="mt-1 text-gray-900">{user.city || 'Not set'}</p>
+                  <p className="mt-1 text-gray-900">{user.city || "Not set"}</p>
                 )}
               </div>
 
@@ -193,4 +203,4 @@ function Profile() {
   );
 }
 
-export default Profile; 
+export default Profile;

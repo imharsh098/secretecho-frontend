@@ -47,20 +47,23 @@ function Login() {
     }
     const loadingToast = toast.loading('Signing in...');
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
-        email,
-        password,
-      });
-      login(response.data.user, response.data.token);
+      const data = await login(email, password);
+      
       if (rememberMe) {
         localStorage.setItem('rememberedCredentials', JSON.stringify({ email, password }));
       } else {
         localStorage.removeItem('rememberedCredentials');
       }
+      
       toast.success('Signed in successfully!', { id: loadingToast });
       navigate('/chat');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'An error occurred', { id: loadingToast });
+      console.error('Login error:', err.response?.data || err.message);
+      toast.error(
+        err.response?.data?.message || 
+        'Server error occurred. Please try again later.', 
+        { id: loadingToast }
+      );
     }
   };
 

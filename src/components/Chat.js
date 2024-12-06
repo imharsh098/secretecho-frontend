@@ -40,7 +40,7 @@ function Chat() {
   const fetchChatHistory = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/chat/history",
+        `${process.env.REACT_APP_API_URL}/chat/history`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -56,7 +56,7 @@ function Chat() {
   const loadChat = async (chatId) => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/chat/${chatId}`,
+        `${process.env.REACT_APP_API_URL}/chat/${chatId}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -86,7 +86,7 @@ function Chat() {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/chat",
+        `${process.env.REACT_APP_API_URL}/chat`,
         {
           message: input,
           chatId: currentChatId,
