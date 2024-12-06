@@ -1,10 +1,19 @@
 import React, { useState, useEffect, useRef } from "react";
+import ChatResponse from "./ChatResponse";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
-import { MessageCircle, Send, LogOut, MessageSquare, Search, PlusCircle, UserCircle } from "lucide-react";
+import {
+  MessageCircle,
+  Send,
+  LogOut,
+  MessageSquare,
+  Search,
+  PlusCircle,
+  UserCircle,
+} from "lucide-react";
 import { format } from "date-fns";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 function Chat() {
   const [messages, setMessages] = useState([]);
@@ -14,7 +23,7 @@ function Chat() {
   const [currentChatId, setCurrentChatId] = useState(null);
   const messagesEndRef = useRef(null);
   const { user, logout } = useAuth();
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -109,9 +118,13 @@ function Chat() {
     }
   };
 
-  const filteredHistory = chatHistory.filter(chat => 
+  const filteredHistory = chatHistory.filter((chat) =>
     chat.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const cleanResponse = (response) => {
+    return response.replace(/^```html/, '').replace(/```$/, '').trim();
+  };
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -136,13 +149,16 @@ function Chat() {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
-            <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
+            <Search
+              className="absolute left-3 top-2.5 text-gray-400"
+              size={20}
+            />
           </div>
         </div>
         <div className="flex-1 overflow-y-auto px-2">
           {filteredHistory.length === 0 && (
             <div className="text-center text-gray-500 mt-8">
-              {searchTerm ? 'No chats found' : 'No chat history'}
+              {searchTerm ? "No chats found" : "No chat history"}
             </div>
           )}
           {filteredHistory.map((chat) => (
@@ -150,23 +166,21 @@ function Chat() {
               key={chat._id}
               onClick={() => loadChat(chat.flowiseChatId)}
               className={`w-full p-3 text-left hover:bg-gray-50 rounded-lg mt-2 flex items-start space-x-3 ${
-                currentChatId === chat.flowiseChatId 
-                  ? "bg-indigo-50 hover:bg-indigo-100" 
+                currentChatId === chat.flowiseChatId
+                  ? "bg-indigo-50 hover:bg-indigo-100"
                   : "hover:bg-gray-50"
               }`}
             >
-              <MessageSquare 
+              <MessageSquare
                 className={`flex-shrink-0 ${
-                  currentChatId === chat.flowiseChatId 
-                    ? "text-indigo-600" 
+                  currentChatId === chat.flowiseChatId
+                    ? "text-indigo-600"
                     : "text-gray-400"
-                }`} 
-                size={20} 
+                }`}
+                size={20}
               />
               <div className="flex-1 min-w-0">
-                <div className="font-medium truncate text-sm">
-                  {chat.title}
-                </div>
+                <div className="font-medium truncate text-sm">{chat.title}</div>
                 <div className="text-xs text-gray-500 mt-1">
                   {format(new Date(chat.updatedAt), "MMM d, yyyy")}
                 </div>
@@ -181,7 +195,9 @@ function Chat() {
         {/* Header */}
         <div className="bg-white border-b px-4 py-2 flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <h1 className="text-xl font-semibold truncate">CA Laws Chat Assistant</h1>
+            <h1 className="text-xl font-semibold truncate">
+              CA Laws Chat Assistant
+            </h1>
           </div>
           <div className="flex items-center space-x-4">
             <Link
@@ -231,7 +247,11 @@ function Chat() {
                       : "bg-gray-200 text-gray-800"
                   }`}
                 >
-                  {message.content}
+                  {message.sender === "user" ? (
+                    message.content
+                  ) : (
+                    <ChatResponse response={cleanResponse(message.content)} />
+                  )}
                   <div
                     className={`text-xs mt-1 ${
                       message.sender === "user"
