@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
-import toast from 'react-hot-toast';
-import PasswordStrengthBar from './PasswordStrengthBar';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import axios from "axios";
+import toast from "react-hot-toast";
+import PasswordStrengthBar from "./PasswordStrengthBar";
 
 function Signup() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [emailError, setEmailError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [emailError, setEmailError] = useState("");
   const navigate = useNavigate();
 
   const validateEmail = (email) => {
@@ -20,29 +20,31 @@ function Signup() {
     const newEmail = e.target.value;
     setEmail(newEmail);
     if (newEmail && !validateEmail(newEmail)) {
-      setEmailError('Please enter a valid email address');
+      setEmailError("Please enter a valid email address");
     } else {
-      setEmailError('');
+      setEmailError("");
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateEmail(email)) {
-      toast.error('Please enter a valid email address');
+      toast.error("Please enter a valid email address");
       return;
     }
-    const loadingToast = toast.loading('Creating account...');
+    const loadingToast = toast.loading("Creating account...");
     try {
       await axios.post(`${process.env.REACT_APP_API_URL}/auth/signup`, {
         email,
         password,
         name,
       });
-      toast.success('Account created successfully!', { id: loadingToast });
-      navigate('/login');
+      toast.success("Account created successfully!", { id: loadingToast });
+      navigate("/login");
     } catch (err) {
-      toast.error(err.response?.data?.message || 'An error occurred', { id: loadingToast });
+      toast.error(err.response?.data?.message || "An error occurred", {
+        id: loadingToast,
+      });
     }
   };
 
@@ -54,7 +56,7 @@ function Signup() {
             Create your account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Join CA Laws Chat Assistant today
+            Join Chat Assistant today
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -118,7 +120,7 @@ function Signup() {
         </form>
         <div className="text-center mt-4">
           <p className="text-sm text-gray-600">
-            Already have an account?{' '}
+            Already have an account?{" "}
             <Link
               to="/login"
               className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors duration-200"
@@ -132,4 +134,4 @@ function Signup() {
   );
 }
 
-export default Signup; 
+export default Signup;

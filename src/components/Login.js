@@ -1,23 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import axios from 'axios';
-import toast from 'react-hot-toast';
-import PasswordStrengthBar from './PasswordStrengthBar';
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import axios from "axios";
+import toast from "react-hot-toast";
+import PasswordStrengthBar from "./PasswordStrengthBar";
 
 function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [emailError, setEmailError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
   useEffect(() => {
     // Check for stored credentials on component mount
-    const storedCredentials = localStorage.getItem('rememberedCredentials');
+    const storedCredentials = localStorage.getItem("rememberedCredentials");
     if (storedCredentials) {
-      const { email: storedEmail, password: storedPassword } = JSON.parse(storedCredentials);
+      const { email: storedEmail, password: storedPassword } =
+        JSON.parse(storedCredentials);
       setEmail(storedEmail);
       setPassword(storedPassword);
       setRememberMe(true);
@@ -33,35 +34,38 @@ function Login() {
     const newEmail = e.target.value;
     setEmail(newEmail);
     if (newEmail && !validateEmail(newEmail)) {
-      setEmailError('Please enter a valid email address');
+      setEmailError("Please enter a valid email address");
     } else {
-      setEmailError('');
+      setEmailError("");
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateEmail(email)) {
-      toast.error('Please enter a valid email address');
+      toast.error("Please enter a valid email address");
       return;
     }
-    const loadingToast = toast.loading('Signing in...');
+    const loadingToast = toast.loading("Signing in...");
     try {
       const data = await login(email, password);
-      
+
       if (rememberMe) {
-        localStorage.setItem('rememberedCredentials', JSON.stringify({ email, password }));
+        localStorage.setItem(
+          "rememberedCredentials",
+          JSON.stringify({ email, password })
+        );
       } else {
-        localStorage.removeItem('rememberedCredentials');
+        localStorage.removeItem("rememberedCredentials");
       }
-      
-      toast.success('Signed in successfully!', { id: loadingToast });
-      navigate('/chat');
+
+      toast.success("Signed in successfully!", { id: loadingToast });
+      navigate("/chat");
     } catch (err) {
-      console.error('Login error:', err.response?.data || err.message);
+      console.error("Login error:", err.response?.data || err.message);
       toast.error(
-        err.response?.data?.message || 
-        'Server error occurred. Please try again later.', 
+        err.response?.data?.message ||
+          "Server error occurred. Please try again later.",
         { id: loadingToast }
       );
     }
@@ -75,7 +79,7 @@ function Login() {
             Welcome Back!
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Sign in to access CA Laws Chat Assistant
+            Sign in to access Chat Assistant
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -123,7 +127,10 @@ function Login() {
               onChange={(e) => setRememberMe(e.target.checked)}
               className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
             />
-            <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+            <label
+              htmlFor="remember-me"
+              className="ml-2 block text-sm text-gray-900"
+            >
               Remember me
             </label>
           </div>
@@ -139,7 +146,7 @@ function Login() {
         </form>
         <div className="text-center mt-4">
           <p className="text-sm text-gray-600">
-            Don't have an account?{' '}
+            Don't have an account?{" "}
             <Link
               to="/signup"
               className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors duration-200"
@@ -153,4 +160,4 @@ function Login() {
   );
 }
 
-export default Login; 
+export default Login;
