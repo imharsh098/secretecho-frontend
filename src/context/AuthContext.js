@@ -2,23 +2,23 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 
 axios.interceptors.request.use(
-  config => {
-    console.log('Request:', config.url, config.data);
+  (config) => {
+    console.log("Request:", config.url, config.data);
     return config;
   },
-  error => {
-    console.error('Request Error:', error);
+  (error) => {
+    console.error("Request Error:", error);
     return Promise.reject(error);
   }
 );
 
 axios.interceptors.response.use(
-  response => {
-    console.log('Response:', response.data);
+  (response) => {
+    console.log("Response:", response.data);
     return response;
   },
-  error => {
-    console.error('Response Error:', error.response?.data || error.message);
+  (error) => {
+    console.error("Response Error:", error.response?.data || error.message);
     return Promise.reject(error);
   }
 );
@@ -30,21 +30,40 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      axios
-        .get(`${process.env.REACT_APP_API_URL}/auth/verify`, {
+  const fetchUserProfile = async (token) => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/auth/profile`,
+        {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        })
-        .then((response) => {
-          setUser(response.data.user);
-          setIsAuthenticated(true);
-        })
+        }
+      );
+      const userData = {
+        id: response.data._id,
+        name: response.data.name,
+        email: response.data.email,
+        phone: response.data.phone,
+      };
+      setUser(userData);
+      setIsAuthenticated(true);
+      return userData;
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      localStorage.removeItem("token");
+      setUser(null);
+      setIsAuthenticated(false);
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetchUserProfile(token)
         .catch(() => {
-          localStorage.removeItem("token");
+          // Error already handled in fetchUserProfile
         })
         .finally(() => {
           setLoading(false);
@@ -60,17 +79,23 @@ export const AuthProvider = ({ children }) => {
         `${process.env.REACT_APP_API_URL}/auth/login`,
         { email, password }
       );
-      
+
       if (response.data && response.data.token) {
         localStorage.setItem("token", response.data.token);
-        setUser(response.data.user);
+        const userData = {
+          id: response.data.user._id,
+          name: response.data.user.name,
+          email: response.data.user.email,
+          phone: response.data.user.phone,
+        };
+        setUser(userData);
         setIsAuthenticated(true);
-        return response.data;
+        return { user: userData, token: response.data.token };
       } else {
-        throw new Error('Invalid response format from server');
+        throw new Error("Invalid response format from server");
       }
     } catch (error) {
-      console.error('Auth error:', error.response?.data || error.message);
+      console.error("Auth error:", error.response?.data || error.message);
       throw error;
     }
   };
@@ -101,18 +126,37 @@ export const AuthProvider = ({ children }) => {
 
   const updateProfile = async (userData) => {
     try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+
       const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/auth/profile`,
         userData,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
-      setUser(response.data);
-      return response.data;
+
+      const updatedUserData = {
+        id: response.data._id,
+        name: response.data.name,
+        email: response.data.email,
+        phone: response.data.phone,
+      };
+
+      // Update the user state with the new data
+      setUser(updatedUserData);
+
+      // Fetch the latest user data from the server to ensure consistency
+      await fetchUserProfile(token);
+
+      return updatedUserData;
     } catch (error) {
+      console.error("Error updating profile:", error);
       throw error;
     }
   };
@@ -131,6 +175,7 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         loading,
+        updateProfile,
       }}
     >
       {children}

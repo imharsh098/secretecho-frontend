@@ -9,7 +9,7 @@ import Login from "./components/Login.js";
 import Signup from "./components/Signup.js";
 import Chat from "./components/Chat.js";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import { Toaster } from 'react-hot-toast';
+import { Toaster } from "react-hot-toast";
 import Profile from "./components/Profile.js";
 import VerifyEmail from "./components/VerifyEmail.js";
 
@@ -49,28 +49,49 @@ function App() {
         toastOptions={{
           duration: 3000,
           style: {
-            background: '#363636',
-            color: '#fff',
+            background: "#363636",
+            color: "#fff",
           },
           success: {
             duration: 3000,
             theme: {
-              primary: '#4CAF50',
+              primary: "#4CAF50",
             },
           },
           error: {
             duration: 4000,
             theme: {
-              primary: '#E57373',
+              primary: "#E57373",
             },
           },
         }}
       />
       <Router>
         <Routes>
-          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-          <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
-          <Route path="/verify-email" element={<PublicRoute><VerifyEmail /></PublicRoute>} />
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <PublicRoute>
+                <Signup />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/verify-email"
+            element={
+              <PublicRoute>
+                <VerifyEmail />
+              </PublicRoute>
+            }
+          />
           <Route
             path="/chat"
             element={
